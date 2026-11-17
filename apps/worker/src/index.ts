@@ -1,19 +1,28 @@
-import { Worker } from "bullmq";
-import IORedis from "ioredis";
+import { spawn } from "node:child_process";
 
-const redisUrl = process.env.REDIS_URL;
-if (!redisUrl) {
-  console.error("[vice-worker] REDIS_URL is required; worker not started.");
-  process.exit(1);
+function check(command: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const child = spawn(command, ["-version"], { stdio: "ignore", windowsHide: true });
+    child.once("error", () => resolve(false));
+    child.once("exit", (code) => resolve(code === 0));
+  });
 }
 
-const connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
-const worker = new Worker("vice-media", async (job) => {
-  console.info("[vice-worker] received job", { id: job.id, name: job.name });
-  if (job.name === "health-check") return { ok: true, processedAt: new Date().toISOString() };
-  throw new Error(`Unsupported job type: ${job.name}`);
-}, { connection, concurrency: Number(process.env.WORKER_CONCURRENCY ?? 1) });
+async function main() {
+  const [ffmpeg, ffprobe] = await Promise.all([check("ffmpeg"), check("ffprobe")]);
+  console.log("\nVICE CLIPS · LOCAL WORKER");
+  console.log(`FFmpeg:  ${ffmpeg ? "ready" : "missing"}`);
+  console.log(`FFprobe: ${ffprobe ? "ready" : "missing"}`);
+  console.log("Mode:    CPU only · one render at a time");
+  if (!ffmpeg || !ffprobe) {
+    console.error("\nInstall FFmpeg and add its bin folder to Windows PATH.");
+    process.exitCode = 1;
+    return;
+  }
+  console.log("\nReady. Run the clip command shown in README.md.");
+}
 
-worker.on("completed", (job) => console.info("[vice-worker] completed", job.id));
-worker.on("failed", (job, error) => console.error("[vice-worker] failed", job?.id, error.message));
-console.info("[vice-worker] listening on queue vice-media");
+main().catch((error) => {
+  console.error("[vice-worker] startup failed:", error);
+  process.exitCode = 1;
+});
