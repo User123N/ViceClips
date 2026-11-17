@@ -1,61 +1,60 @@
-# VICE CLIPS implementation plan
+# VICE CLIPS — zero-budget implementation plan
 
-## 24-hour MVP target
-Deliver a deployable MVP, not a claim of full commercial readiness.
+## Target hardware
 
-### P0 — foundation
-- Next.js app, TypeScript, lint, typecheck and build.
-- Supabase Auth and database migrations.
-- Owner-scoped RLS.
-- Environment validation and safe secret handling.
+Windows 10/11, 8 GB RAM, no NVIDIA GPU. CPU-only, one media job at a time. No paid subscriptions or required API keys.
 
-### P1 — VICE ISLAND
-- Isometric 3D island with optimized GLB assets.
-- Interactive buildings: Harbor, Radar, Moment Lab, Editing Studio, Command Center, Broadcast Tower and Observatory.
-- Every building opens a functional route.
-- Accessible dashboard fallback and reduced-motion/mobile mode.
+## P0 — local foundation
 
-### P2 — media pipeline
-- Upload authorized video to private object storage.
-- Create durable processing job.
-- Worker probes media with FFprobe.
-- Transcribe audio.
-- Detect candidate moments using transcript/audio features.
-- Render 9:16 clips with FFmpeg and configurable caption presets.
-- Save outputs and job logs.
+- Next.js interface.
+- Local TypeScript worker.
+- FFmpeg/FFprobe system installation.
+- Local media folders with size and duration limits.
+- PowerShell setup and diagnostics.
 
-### P3 — agents
-- Atlas: orchestration and job state.
-- Hunter: source discovery using permitted API scopes.
-- Moment: candidate moment ranking.
-- Writer: title, description and caption suggestions.
-- Editor: render profile selection and FFmpeg job creation.
-- Checker: media integrity, caption bounds and permission validation.
-- Publisher: official API publishing only.
-- Analyst: analytics aggregation.
+## P1 — first end-to-end workflow
 
-Agents are typed services, not unrestricted autonomous bots. Every action is permission-scoped, logged and idempotent.
+- Select an authorized local video.
+- Probe duration and streams with FFprobe.
+- Select start and duration.
+- Render vertical 9:16 MP4 using CPU-friendly H.264 settings.
+- Optionally burn an existing SRT subtitle file.
+- Save render metadata and report errors clearly.
 
-### P4 — platform adapters
-- Twitch: OAuth and only API operations allowed by granted scopes.
-- YouTube: authorized metadata and upload APIs.
-- Kick: documented API capabilities only; no assumption of general VOD download access.
-- Provide authorized file upload as fallback.
+## P2 — local transcription and moment suggestions
 
-### P5 — distribution and analytics
-- Publishing queue, scheduled status, retry handling.
-- Persist external post IDs and platform URLs.
-- Collect metrics only where official APIs expose them.
+- Integrate a small Whisper-compatible local model, CPU/int8 where supported.
+- Keep model download optional and explain its disk/RAM requirements.
+- Start with transcript-based candidate moments and transparent scoring rules.
+- Never require a paid AI API.
 
-## Acceptance test
-An authorized uploaded video can be processed end-to-end and produces a playable vertical MP4, transcript, detected moments, job history and stored metadata.
+## P3 — functional VICE ISLAND modules
 
-## Cost controls
-- Limit concurrent renders and upload size/duration.
-- Delete temporary files after successful rendering.
-- Use local/open-source transcription where suitable.
-- Add per-job and monthly AI/storage budgets.
-- Do not enable paid services without explicit owner approval.
+- Harbor: import local authorized files.
+- Moment Lab: review candidate moments.
+- Editing Studio: select interval, aspect ratio and caption preset.
+- Library: list and play exported clips.
+- Command Center: sequential job status and logs.
+- Other buildings remain disabled until their feature exists.
 
-## Release gates
-Run lint, typecheck, unit tests, production build, RLS tests and one end-to-end media test. Record integrations blocked by OAuth approval, account eligibility or unavailable API capability.
+## P4 — optional free cloud features
+
+- Supabase Free only for auth and metadata, with quotas disclosed.
+- Optional static/web deployment on an eligible free tier.
+- Local files remain local; no assumption of free cloud video storage.
+- Official platform APIs only, after permissions and account eligibility are confirmed.
+
+## Not in the $0 MVP
+
+- Paid cloud GPU/CPU workers, S3 storage, Redis Cloud, paid LLM APIs.
+- Guaranteed 24/7 stream capture.
+- Automatic social publishing without approved official API scopes.
+- Unlimited cloud hosting or storage.
+
+## Acceptance checks
+
+- FFmpeg and FFprobe are detected.
+- Invalid input, missing audio, bad time ranges and missing subtitle files produce clear errors.
+- A sample authorized MP4 renders as a playable 9:16 MP4.
+- No concurrent render jobs on the 8 GB target machine.
+- Run typecheck, lint, production build and a manual Windows render test before claiming release readiness.
