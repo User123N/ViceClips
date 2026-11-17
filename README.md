@@ -26,9 +26,10 @@ Copy-Item .env.example .env.local
 npm run dev
 ```
 
-In a second PowerShell window:
+Run the local dependency diagnostic:
 
 ```powershell
+.\\scripts\\check-local.ps1
 npm run worker
 ```
 
