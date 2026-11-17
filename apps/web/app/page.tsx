@@ -8,7 +8,7 @@ const buildings = [
   { id: "hunter", name: "Radar HQ", agent: "HUNTER · Descubrimiento", icon: Radar, status: "En espera" },
   { id: "moment", name: "Moment Lab", agent: "MOMENT · Detección", icon: AudioWaveform, status: "En espera" },
   { id: "editor", name: "Editing Studio", agent: "EDITOR · Producción", icon: Clapperboard, status: "En espera" },
-  { id: "command", name: "AI Command", agent: "ATLAS · Orquestación", icon: Bot, status: "Operativo" },
+  { id: "command", name: "AI Command", agent: "ATLAS · Orquestación", icon: Bot, status: "Panel base" },
   { id: "broadcast", name: "Broadcast Tower", agent: "PUBLISHER · Distribución", icon: RadioTower, status: "Conectar cuenta" },
   { id: "analytics", name: "Observatorio", agent: "ANALYST · Rendimiento", icon: ChartNoAxesCombined, status: "Sin datos" },
 ];
@@ -27,7 +27,7 @@ export default function IslandHome() {
         <div className="sidebar-bottom"><Settings2 size={16}/> Configuración <span className="online-dot"/></div>
       </aside>
       <section className="main-area">
-        <header className="topbar"><div><span className="eyebrow">CENTRO DE OPERACIONES</span><h1>VICE ISLAND</h1></div><div className="top-status"><span className="online-dot"/> SISTEMA EN LÍNEA <span className="avatar">VC</span></div></header>
+        <header className="topbar"><div><span className="eyebrow">CENTRO DE OPERACIONES</span><h1>VICE ISLAND</h1></div><div className="top-status"><span className="online-dot"/> MODO LOCAL · CPU <span className="avatar">VC</span></div></header>
         <section className="stats-grid">
           {[["Streams conectados","0","Sin fuentes"],["Momentos detectados","0","Esperando contenido"],["Clips renderizados","0","Sin trabajos"],["Publicaciones","0","Sin canales conectados"]].map(([label,value,note]) => <article className="stat-card" key={label}><span>{label}</span><strong>{value}</strong><small>{note}</small></article>)}
         </section>
@@ -45,7 +45,7 @@ export default function IslandHome() {
           </div>
           <aside className="building-panel"><span className="eyebrow">DEPARTAMENTO SELECCIONADO</span><div className="selected-icon">{(() => { const Icon = active.icon; return <Icon size={25}/>; })()}</div><h2>{active.name}</h2><p>{active.agent}</p><div className="panel-divider"/><div className="panel-row"><span>Estado</span><b>{active.status}</b></div><div className="panel-row"><span>Agente</span><b>{active.id === "command" ? "ATLAS" : active.id.toUpperCase()}</b></div><button className="open-module" onClick={() => alert(`${active.name}: módulo en construcción. La isla interactiva ya está conectada.`)}>Abrir departamento <span>↗</span></button><div className="panel-hint"><Zap size={15}/> Selecciona otro edificio en el mapa para explorar la isla.</div></aside>
         </section>
-        <footer>VICE CLIPS © 2026 <span>BUILDING THE NEXT CLIP EMPIRE</span></footer>
+        <footer>VICE CLIPS © 2026 <span>LOCAL-FIRST · ZERO SUBSCRIPTION MVP</span></footer>
       </section>
     </main>
   );
